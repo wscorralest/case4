@@ -258,6 +258,101 @@ def update_monthly(exchange, leverage, start_date, end_date):
 #################################################
 
 
+@app.callback(
+    dash.dependencies.Output('table', 'data'),
+    (
+        dash.dependencies.Input('exchange-select', 'value'),
+        dash.dependencies.Input('leverage-select', 'value'),
+        dash.dependencies.Input('date-range', 'start_date'),
+        dash.dependencies.Input('date-range', 'end_date'),
+    )
+)
+def update_table(exchange, leverage, start_date, end_date):
+    dff = filter_df(df, exchange, leverage, start_date, end_date)
+    return dff.to_dict('records')
+	
+@app.callback(
+    dash.dependencies.Output('pnl-types', 'figure'),
+    (
+        dash.dependencies.Input('exchange-select', 'value'),
+        dash.dependencies.Input('leverage-select', 'value'),
+        dash.dependencies.Input('date-range', 'start_date'),
+        dash.dependencies.Input('date-range', 'end_date'),
+
+    )
+)
+def update_pnl_types(exchange, leverage, start_date, end_date):
+    dff = filter_df(df, exchange, leverage, start_date, end_date)
+    dff_long = dff[dff['Trade type']=='Long']
+    dff_short = dff[dff['Trade type']=='Short']
+    return {
+        'data': [
+            go.Bar(
+                x=dff_long['Entry time'],
+                y=dff_long['Pnl (incl fees)'],
+                name='long',
+                marker_color='lightsalmon'
+            ),
+            go.Bar(
+                x=dff_short['Entry time'],
+                y=dff_short['Pnl (incl fees)'],
+                marker_color='black',
+                name='short'
+            )
+        ],
+        'layout': {
+            'title': 'PnL vs Trade type'
+        }
+    }
+
+@app.callback(
+    dash.dependencies.Output('daily-btc', 'figure'),
+    (
+        dash.dependencies.Input('exchange-select', 'value'),
+        dash.dependencies.Input('leverage-select', 'value'),
+        dash.dependencies.Input('date-range', 'start_date'),
+        dash.dependencies.Input('date-range', 'end_date'),
+    )
+)
+def update_btc_price(exchange, leverage, start_date, end_date):
+    dff = filter_df(df, exchange, leverage, start_date, end_date)
+    return {
+        'data': [
+            go.Scatter(
+                x=dff['Entry time'],
+                y=dff['BTC Price']
+            )
+        ],
+        'layout': {
+            'title': 'Daily BTC Price'
+        }
+    }
+
+@app.callback(
+    dash.dependencies.Output('balance', 'figure'),
+    (
+        dash.dependencies.Input('exchange-select', 'value'),
+        dash.dependencies.Input('leverage-select', 'value'),
+        dash.dependencies.Input('date-range', 'start_date'),
+        dash.dependencies.Input('date-range', 'end_date'),
+        dash.dependencies.Input('monthly-chart', 'selectedData')
+    )
+)
+def update_balance(exchange, leverage, start_date, end_date, data):
+    dff = filter_df(df, exchange, leverage, start_date, end_date)
+    return {
+        'data': [
+            go.Scatter(
+                x=dff['Entry time'],
+                y=dff['Exit balance']
+            )
+        ],
+        'layout': {
+            'title': 'Balance overtime'
+        }
+    }
+
+
 
 ##################################################
 ##########
