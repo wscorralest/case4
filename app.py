@@ -10,6 +10,10 @@ engine = create_engine('postgresql://postgres:potiXRPJ8iRvFtGi0UQW@case-4.cktdu1
 df = pd.read_sql("SELECT * from trades", engine.connect(), parse_dates=('Entry time',))
 #df = pd.read_csv('aggr.csv', parse_dates=['Entry time'])
 
+df.rename(columns={"number": "Number", "trade_type": "Trade type", "entry_time": "Entry time", "exposure":"Exposure",
+                  "entry_balance":"Entry balance","exit_balance":"Exit balance","profit":"Profit",
+                  "pnl_incl_fees":"Pnl (incl fees)","exchange":"Exchange","margin":"Margin","btc_price":"BTC Price"},inplace = True)
+
 app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/uditagarwal/pen/oNvwKNP.css', 'https://codepen.io/uditagarwal/pen/YzKbqyV.css'])
 
 
@@ -60,7 +64,8 @@ app.layout = html.Div(children=[
                                     dcc.RadioItems(
                                         id="leverage-select",
                                         options=[
-                                            {'label': str(label), 'value': str(label)} for label in df['Margin'].unique()
+                                            {'label': str(label), 'value': str(label)}\
+                                                 for label in df['Margin'].unique()
                                         ],
                                         value='1',
                                         labelStyle={'display': 'inline-block'}
