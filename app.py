@@ -18,7 +18,7 @@ app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/uditagarwal/
 
 
 def filter_df(df, exchange, leverage, start_date, end_date):
-    df_filtered = df[(df['Exchange']==exchange) & (df['Margin']==int(leverage)) & (df['Entry time'] > start_date) & (df['Entry time'] < end_date)]
+    df_filtered = df[(df['Exchange']==exchange) & (df['Margin']==float(leverage)) & (df['Entry time'] > start_date) & (df['Entry time'] < end_date)]
     df_filtered.sort_values(by='Entry time', ascending=False)
     df_filtered['YearMonth'] = df_filtered['Entry time'].map(lambda x: str(x.year)+'-'+str(x.month))
     return df_filtered
