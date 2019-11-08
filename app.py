@@ -7,7 +7,7 @@ import dash_table
 
 from sqlalchemy import create_engine
 engine = create_engine('postgresql://postgres:potiXRPJ8iRvFtGi0UQW@case-4.cktdu1m6lpsg.us-east-2.rds.amazonaws.com/postgres')
-df = pd.read_sql("SELECT * from trades", engine.connect(), parse_dates=('Entry time',))
+df = pd.read_sql("SELECT * from trades", engine.connect(), parse_dates=('entry_time',))
 #df = pd.read_csv('aggr.csv', parse_dates=['Entry time'])
 
 df.rename(columns={"number": "Number", "trade_type": "Trade type", "entry_time": "Entry time", "exposure":"Exposure",
@@ -20,7 +20,7 @@ app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/uditagarwal/
 def filter_df(df, exchange, leverage, start_date, end_date):
     df_filtered = df[(df['Exchange']==exchange) & (df['Margin']==int(leverage)) & (df['Entry time'] > start_date) & (df['Entry time'] < end_date)]
     df_filtered.sort_values(by='Entry time', ascending=False)
-    df_filtered['YearMonth'] = pd.to_datetime(df_filtered['Entry time'].map(lambda x: "{}-{}".format(x.year, x.month)))
+    df_filtered['YearMonth'] = df_filtered['Entry time'].map(lambda x: str(x.year)+'-'+str(x.month))
     return df_filtered
 
 ###########################################
@@ -149,7 +149,10 @@ app.layout = html.Div(children=[
                     dcc.Graph(
                         id="pnl-types",
                         className="six columns card",
-                        figure={}
+                        figure={},
+                        style={
+                            'height':'500px'
+                        }
                     )
                 ]
             ),
@@ -159,12 +162,18 @@ app.layout = html.Div(children=[
                     dcc.Graph(
                         id="daily-btc",
                         className="six columns card",
-                        figure={}
+                        figure={},
+                        style={
+                            'height':'500px'
+                        }
                     ),
                     dcc.Graph(
                         id="balance",
                         className="six columns card",
-                        figure={}
+                        figure={},
+                        style={
+                            'height':'500px'
+                        }
                     )
                 ]
             )
